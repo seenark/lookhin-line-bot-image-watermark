@@ -1,0 +1,32 @@
+services:
+  caddy:
+    container_name: caddy
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+  api:
+    image: hadesgod/lookhin-line-bot-image-watermark:latest
+    container_name: api
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    env_file: .env
+    ports:
+      - 3000:3000
+    volumes:
+      - ./images:/app/images
+      - ./images-outputs:/app/images-outputs
+  web:
+    image: hadesgod/lookhin-image-watermark-gallery
+    container_name: web
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+    ports:
+      - 3001:3001
+    volumes:
+      - ./images:/app/images
+      - ./images-outputs:/app/images-outputs
