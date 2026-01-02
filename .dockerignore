@@ -1,0 +1,7 @@
+dist
+.zed
+.git
+.claude
+node_modules
+images
+images-output
