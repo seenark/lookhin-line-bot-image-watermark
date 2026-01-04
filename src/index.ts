@@ -1,12 +1,12 @@
-import { readdir, unlink } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { readdir, unlink } from "node:fs/promises";
+import path from "node:path";
 import { cors } from "@elysiajs/cors";
 import openapi from "@elysiajs/openapi";
 import staticPlugin from "@elysiajs/static";
 import { validateSignature } from "@line/bot-sdk";
 import { Array as A, Effect, JSONSchema, Schema as S } from "effect";
 import { Elysia } from "elysia";
-import path from "node:path";
 import { Runtime } from "./runtime";
 import { WebhookService } from "./webhook";
 
@@ -66,7 +66,9 @@ const app = new Elysia({
     }
   )
   .get("/images", async () => {
-    const files = await readdir("images-output");
+    const files = (await readdir("images-output")).sort((a, b) =>
+      b.localeCompare(a)
+    );
     return A.map(files, (f) => `${Bun.env.APP_DOMAIN}/static/${f}`);
   })
   .delete("/images/:filename", async ({ params, set }) => {
@@ -112,7 +114,7 @@ const app = new Elysia({
     }
 
     // If neither file existed, return 404
-    if (!results.deletedFromImages && !results.deletedFromImagesOutput) {
+    if (!(results.deletedFromImages || results.deletedFromImagesOutput)) {
       set.status = 404;
       return {
         success: false,
